@@ -2,11 +2,15 @@ package com.ktu.taim.task;
 
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -20,40 +24,33 @@ import com.ktu.taim.R;
  */
 public class TaskFragment extends Fragment {
 
-    public static String TASK_NAME_ARG = "task_name";
-    public static String BACKGROUND_COLOR_ARG = "bg_color";
+    public static long MILIS_PER_HOUR = 3600 * 1000;
+    public static long MILIS_PER_MIN = 60 * 1000;
+    public static long MILIS_PER_SEC = 1000;
+    public static long MILIS_PER_STAR = 10;
 
-    private String taskName;
-    private int bgColor;
+    private TaskPresenter presenter;
+    private Handler handler;
 
     public TaskFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Create a new instance of this fragment.
-     *
-     * @param taskName
-     * @param color
-     * @return
-     */
-    public static TaskFragment newInstance(String taskName, int color) {
-        TaskFragment fragment = new TaskFragment();
-        Bundle args = new Bundle();
-        args.putString(TASK_NAME_ARG, taskName);
-        args.putInt(BACKGROUND_COLOR_ARG, color);
-        fragment.setArguments(args);
-
-        return fragment;
+    public void assignPresenter(TaskPresenter presenter) {
+        this.presenter = presenter;
     }
+
+    public Handler getHandler() { return handler; }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            taskName = getArguments().getString(TASK_NAME_ARG);
-            bgColor = getArguments().getInt(BACKGROUND_COLOR_ARG);
-        }
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                updateTimeCounterDisplay();
+            }
+        };
     }
 
     @Override
@@ -67,7 +64,33 @@ public class TaskFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         LinearLayout bgLayout = (LinearLayout) (getView().findViewById(R.id.backgroundLayout));
-        bgLayout.setBackgroundColor(bgColor);
-        ((TextView) (getView().findViewById(R.id.activityNameTxt))).setText(taskName);
+        bgLayout.setBackgroundColor(presenter.getTask().getColor());
+        ((TextView) (getView().findViewById(R.id.activityNameTxt))).setText(presenter.getTask().getName());
+        // start task timer after ui is shown
+        presenter.startTimeTracking();
+    }
+
+    /**
+     * Update the visualization of task time counter on the screen.
+     */
+    private void updateTimeCounterDisplay() {
+        long counter = presenter.getTask().getTimeCounter();
+        int hours = (int)(counter / MILIS_PER_HOUR);
+        counter %= MILIS_PER_HOUR;
+        int mins = (int)(counter / MILIS_PER_MIN);
+        counter %= MILIS_PER_MIN;
+        int secs = (int)(counter / MILIS_PER_SEC);
+        counter %= MILIS_PER_SEC;
+        int stars = (int)(counter / MILIS_PER_STAR);
+        String timeCounterString = String.format("%02d:%02d:%02d.%02d", hours, mins, secs, stars);
+        View view = getView();
+        if (view != null) {
+            ((TextView) view.findViewById(R.id.timerValueTxt)).setText(timeCounterString);
+        }
+        else {
+            // just to ensure the program will not break if a call is made
+            // to this method after this fragment has been closed
+            System.out.println(presenter.getTask().getName() + " is cancelled");
+        }
     }
 }

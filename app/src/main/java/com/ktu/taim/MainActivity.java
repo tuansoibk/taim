@@ -17,6 +17,7 @@ import com.ktu.taim.task.TaskPresenter;
  */
 public class MainActivity extends AppCompatActivity {
 
+
     private boolean isContainerEmpty = true;
     private MainPresenter mainPresenter;
     private int taskCount = 0;

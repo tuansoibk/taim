@@ -36,11 +36,17 @@ public class MainPresenter {
         if (taskPresenterList.size() < MAX_TASK_COUNT) {
             int nextColor = colorPicker.getNextColor();
             Task newTask = new Task(taskName, nextColor);
-            int newIndex = taskPresenterList.size();
             TaskPresenter newPresenter = new TaskPresenter(newTask);
-            currentPresenterIndex = taskPresenterList.size();
+            int newTaskIndex = taskPresenterList.size();
             taskPresenterList.add(newPresenter);
-            activity.presentTask(newPresenter);
+            if (newTaskIndex == 0) {
+                // this is the very first element in the list
+                currentPresenterIndex = newTaskIndex;
+                activity.presentTask(newPresenter);
+            }
+            else {
+                switchToTask(newTaskIndex);
+            }
         }
         else {
             activity.notifyTaskQueueFull();
@@ -52,10 +58,9 @@ public class MainPresenter {
      */
     public void switchToRightTask() {
         if (taskPresenterList.size() > 1) {
-            currentPresenterIndex++;
-            currentPresenterIndex %= taskPresenterList.size();
-            TaskPresenter rightTaskPresenter = taskPresenterList.get(currentPresenterIndex);
-            activity.presentTask(rightTaskPresenter);
+            int newTaskIndex = currentPresenterIndex + 1;
+            newTaskIndex %= taskPresenterList.size();
+            switchToTask(newTaskIndex);
         }
     }
 
@@ -64,12 +69,21 @@ public class MainPresenter {
      */
     public void switchToLeftTask() {
         if (taskPresenterList.size() > 1) {
-            currentPresenterIndex--;
-            if (currentPresenterIndex < 0) {
-                currentPresenterIndex = taskPresenterList.size() - 1;
+            int newTaskIndex = currentPresenterIndex - 1;
+            if (newTaskIndex < 0) {
+                newTaskIndex = taskPresenterList.size() - 1;
             }
-            TaskPresenter leftTaskPresenter = taskPresenterList.get(currentPresenterIndex);
-            activity.presentTask(leftTaskPresenter);
+            switchToTask(newTaskIndex);
+        }
+    }
+
+    private void switchToTask(int newTaskIndex) {
+        if (taskPresenterList.size() > 1) {
+            TaskPresenter currentTaskPresenter = taskPresenterList.get(currentPresenterIndex);
+            currentTaskPresenter.stopTimeTracking();
+            TaskPresenter newTaskPresenter = taskPresenterList.get(newTaskIndex);
+            currentPresenterIndex = newTaskIndex;
+            activity.presentTask(newTaskPresenter);
         }
     }
 }
