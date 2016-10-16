@@ -1,8 +1,8 @@
 package com.ktu.taim;
 
-import android.graphics.Color;
-
 /**
+ * This class provides a selection of predefined colors.
+ *
  * Created by A on 14/10/2016.
  */
 public class MyColors {

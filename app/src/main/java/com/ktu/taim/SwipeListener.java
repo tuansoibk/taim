@@ -2,9 +2,10 @@ package com.ktu.taim;
 
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 /**
+ * This class provides swipe detection services.
+ *
  * Created by A on 15/10/2016.
  */
 public class SwipeListener implements View.OnTouchListener {
@@ -68,23 +69,11 @@ public class SwipeListener implements View.OnTouchListener {
         return false;
     }
 
-    public void onLeftToRightSwipe(){
-        Toast.makeText(v.getContext(),"left to right",
-                Toast.LENGTH_SHORT).show();
-    }
+    public void onLeftToRightSwipe(){ }
 
-    public void onRightToLeftSwipe() {
-        Toast.makeText(v.getContext(),"right to left",
-                Toast.LENGTH_SHORT).show();
-    }
+    public void onRightToLeftSwipe() { }
 
-    public void onTopToBottomSwipe() {
-        Toast.makeText(v.getContext(),"top to bottom",
-                Toast.LENGTH_SHORT).show();
-    }
+    public void onTopToBottomSwipe() { }
 
-    public void onBottomToTopSwipe() {
-        Toast.makeText(v.getContext(),"bottom to top",
-                Toast.LENGTH_SHORT).show();
-    }
+    public void onBottomToTopSwipe() { }
 }
