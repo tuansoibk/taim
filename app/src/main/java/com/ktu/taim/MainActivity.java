@@ -17,6 +17,7 @@ import com.ktu.taim.task.TaskPresenter;
  */
 public class MainActivity extends AppCompatActivity {
 
+    private static String APP_VERSION_SIG = "1610_2310";
 
     private boolean isContainerEmpty = true;
     private MainPresenter mainPresenter;
