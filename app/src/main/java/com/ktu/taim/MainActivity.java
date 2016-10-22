@@ -1,5 +1,6 @@
 package com.ktu.taim;
 
+import android.os.AsyncTask;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -59,7 +60,18 @@ public class MainActivity extends AppCompatActivity {
                 mainPresenter.createNewTask("test task " + taskCount);
             }
         });
+
+        // initiate data loading
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                mainPresenter.initialize(MainActivity.this);
+                return null;
+            }
+        }.execute();
     }
+
+
 
     /**
      * Present current task content to the screen
