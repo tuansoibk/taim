@@ -46,23 +46,21 @@ public class MainPresenter {
      * @param taskName
      */
     public void createNewTask(String taskName) {
-        if (isReadyToPerformOperation()) {
-            if (taskPresenterList.size() < MAX_TASK_COUNT) {
-                int nextColor = colorPicker.getNextColor();
-                Task newTask = new Task(taskName, nextColor);
-                TaskPresenter newPresenter = new TaskPresenter(newTask);
-                int newTaskIndex = taskPresenterList.size();
-                taskPresenterList.add(newPresenter);
-                if (newTaskIndex == 0) {
-                    // this is the very first element in the list
-                    currentPresenterIndex = newTaskIndex;
-                    activity.presentTask(newPresenter);
-                } else {
-                    switchToTask(newTaskIndex);
-                }
+        if (taskPresenterList.size() < MAX_TASK_COUNT) {
+            int nextColor = colorPicker.getNextColor();
+            Task newTask = new Task(taskName, nextColor);
+            TaskPresenter newPresenter = new TaskPresenter(newTask);
+            int newTaskIndex = taskPresenterList.size();
+            taskPresenterList.add(newPresenter);
+            if (newTaskIndex == 0) {
+                // this is the very first element in the list
+                currentPresenterIndex = newTaskIndex;
+                activity.presentTask(newPresenter);
             } else {
-                activity.notifyTaskQueueFull();
+                switchToTask(newTaskIndex);
             }
+        } else {
+            activity.notifyTaskQueueFull();
         }
     }
 
@@ -87,12 +85,10 @@ public class MainPresenter {
      * Switch to the task which is right next to the current task.
      */
     public void switchToRightTask() {
-        if (isReadyToPerformOperation()) {
-            if (taskPresenterList.size() > 1) {
-                int newTaskIndex = currentPresenterIndex + 1;
-                newTaskIndex %= taskPresenterList.size();
-                switchToTask(newTaskIndex);
-            }
+        if (taskPresenterList.size() > 1) {
+            int newTaskIndex = currentPresenterIndex + 1;
+            newTaskIndex %= taskPresenterList.size();
+            switchToTask(newTaskIndex);
         }
     }
 
@@ -100,14 +96,12 @@ public class MainPresenter {
      * Switch to the task which is left next to the current task.
      */
     public void switchToLeftTask() {
-        if (isReadyToPerformOperation()) {
-            if (taskPresenterList.size() > 1) {
-                int newTaskIndex = currentPresenterIndex - 1;
-                if (newTaskIndex < 0) {
-                    newTaskIndex = taskPresenterList.size() - 1;
-                }
-                switchToTask(newTaskIndex);
+        if (taskPresenterList.size() > 1) {
+            int newTaskIndex = currentPresenterIndex - 1;
+            if (newTaskIndex < 0) {
+                newTaskIndex = taskPresenterList.size() - 1;
             }
+            switchToTask(newTaskIndex);
         }
     }
 
@@ -121,26 +115,5 @@ public class MainPresenter {
             currentPresenterIndex = newTaskIndex;
             activity.presentTask(newTaskPresenter);
         }
-    }
-
-    /**
-     * Check if the view is ready before performing any operation
-     * View is read when:
-     *   - There is no task in the queue, or
-     *   - View of current task is fully initialized
-     *
-     * @return true if the view is ready, otherwise false
-     */
-    private boolean isReadyToPerformOperation() {
-        boolean ready = false;
-        if (taskPresenterList.size() == 0) {
-            ready = true;
-        }
-        else {
-            TaskPresenter currentTask = taskPresenterList.get(currentPresenterIndex);
-            ready = currentTask.getFragment().isFullyInitialized();
-        }
-
-        return ready;
     }
 }

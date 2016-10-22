@@ -1,6 +1,8 @@
 package com.ktu.taim.task;
 
 
+import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -33,7 +35,7 @@ public class TaskFragment extends Fragment {
     private Handler handler;
 
     public TaskFragment() {
-        // Required empty public constructor
+        // emty constructor
     }
 
     public void assignPresenter(TaskPresenter presenter) {
@@ -65,8 +67,11 @@ public class TaskFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         LinearLayout bgLayout = (LinearLayout) (getView().findViewById(R.id.backgroundLayout));
         bgLayout.setBackgroundColor(presenter.getTask().getColor());
-        ((TextView) (getView().findViewById(R.id.activityNameTxt))).setText(presenter.getTask().getName());
+        TextView taskTxt = (TextView) (getView().findViewById(R.id.activityNameTxt));
+        taskTxt.setTypeface(Typeface.createFromAsset(getActivity().getAssets(), "fonts/Call_me_maybe.ttf"));
+        taskTxt.setText(presenter.getTask().getName());
         // start task timer after ui is shown
+        System.out.println("start task: " + presenter.getTask().getName());
         presenter.startTimeTracking();
     }
 
