@@ -71,7 +71,25 @@ public class MainActivity extends AppCompatActivity {
         }.execute();
     }
 
+    @Override
+    protected void onPause() {
+        System.out.println("*** pause ***");
+        mainPresenter.stopCurrentTask();
+        super.onPause();
+    }
 
+    @Override
+    protected void onResume() {
+        System.out.println("*** resume ***");
+        mainPresenter.startCurrentTask();
+        super.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        mainPresenter.deInitialize();
+        super.onDestroy();
+    }
 
     /**
      * Present current task content to the screen
@@ -99,5 +117,9 @@ public class MainActivity extends AppCompatActivity {
      */
     public void notifyTaskQueueFull() {
         Toast.makeText(this, "You task queue is already full!", Toast.LENGTH_SHORT).show();
+    }
+
+    public void notifyDatabaseError(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }

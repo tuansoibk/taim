@@ -18,7 +18,7 @@ import java.util.List;
 public class DataProvider extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "com.ktu.taim.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private static DataProvider instance;
 
@@ -50,7 +50,7 @@ public class DataProvider extends SQLiteOpenHelper {
         DatabaseContract.TaskTable.upgradeTable(db, oldVersion, newVersion);
     }
 
-    public Task insertTask(Task task) throws OperationApplicationException {
+    public Task insertTask(Task task) throws DatabaseCannotBeOpenedException {
         SQLiteDatabase db = this.getWritableDatabase();
         if (db != null) {
             ContentValues values = new ContentValues();
@@ -61,13 +61,13 @@ public class DataProvider extends SQLiteOpenHelper {
             long id = db.insert(DatabaseContract.TaskTable.TABLE_NAME, null, values);
             task.assignId(id);
         } else {
-            throw new OperationApplicationException("Unable to open database.");
+            throw new DatabaseCannotBeOpenedException();
         }
 
         return task;
     }
 
-    public boolean updateTask(Task task) throws OperationApplicationException {
+    public boolean updateTask(Task task) throws DatabaseCannotBeOpenedException {
         boolean updated = false;
         if (task != null) {
             SQLiteDatabase db = this.getWritableDatabase();
@@ -84,14 +84,14 @@ public class DataProvider extends SQLiteOpenHelper {
                 updated = count > 0;
             }
             else {
-                throw new OperationApplicationException("Unable to open database.");
+                throw new DatabaseCannotBeOpenedException();
             }
         }
 
         return updated;
     }
 
-    public boolean deleteTask(Task task) throws OperationApplicationException {
+    public boolean deleteTask(Task task) throws DatabaseCannotBeOpenedException {
         boolean deleted = false;
         if (task != null) {
             SQLiteDatabase db = this.getWritableDatabase();
@@ -103,14 +103,14 @@ public class DataProvider extends SQLiteOpenHelper {
                 deleted = count > 0;
             }
             else {
-                throw new OperationApplicationException("Unable to open database.");
+                throw new DatabaseCannotBeOpenedException();
             }
         }
 
         return deleted;
     }
 
-    public List<Task> getAllTasks() throws OperationApplicationException {
+    public List<Task> getAllTasks() throws DatabaseCannotBeOpenedException {
         List<Task> taskList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         if (db != null) {
@@ -132,7 +132,7 @@ public class DataProvider extends SQLiteOpenHelper {
             }
         }
         else {
-            throw new OperationApplicationException("Unable to open database.");
+            throw new DatabaseCannotBeOpenedException();
         }
 
         return taskList;

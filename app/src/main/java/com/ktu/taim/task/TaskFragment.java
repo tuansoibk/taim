@@ -71,7 +71,7 @@ public class TaskFragment extends Fragment {
         taskTxt.setTypeface(Typeface.createFromAsset(getActivity().getAssets(), "fonts/Call_me_maybe.ttf"));
         taskTxt.setText(presenter.getTask().getName());
         // start task timer after ui is shown
-        System.out.println("start task: " + presenter.getTask().getName());
+        System.out.println("start task timer");
         presenter.startTimeTracking();
     }
 

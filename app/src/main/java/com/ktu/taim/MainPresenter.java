@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 
 import com.ktu.taim.database.DataProvider;
+import com.ktu.taim.database.DatabaseCannotBeOpenedException;
 import com.ktu.taim.task.Task;
 import com.ktu.taim.task.TaskPresenter;
 
@@ -36,7 +37,35 @@ public class MainPresenter {
         DataProvider.initialize(context);
         loadTasksFromDatabase();
         if (taskPresenterList.size() > 0) {
-            switchToTask(0);
+            startAndPresentTask(0);
+        }
+    }
+
+    public void deInitialize() {
+        for (TaskPresenter taskPresenter : taskPresenterList) {
+            try {
+                DataProvider.getInstance().updateTask(taskPresenter.getTask());
+            }
+            catch (DatabaseCannotBeOpenedException e) {
+                System.out.println("FATAL: unable to save task state!");
+            }
+        }
+        System.out.println("****** DEINIT DB *********************************************");
+        DataProvider.getInstance().close();
+    }
+
+    public void stopCurrentTask() {
+        if ((taskPresenterList.size() > 0) && (currentPresenterIndex < taskPresenterList.size())) {
+            stopTask(currentPresenterIndex);
+        }
+    }
+
+    public void startCurrentTask() {
+        if ((taskPresenterList.size() > 0) && (currentPresenterIndex < taskPresenterList.size())) {
+            TaskPresenter taskPresenter = taskPresenterList.get(currentPresenterIndex);
+            // current task has already been presented
+            // just start the timer
+            taskPresenter.startTimeTracking();
         }
     }
 
@@ -49,15 +78,25 @@ public class MainPresenter {
         if (taskPresenterList.size() < MAX_TASK_COUNT) {
             int nextColor = colorPicker.getNextColor();
             Task newTask = new Task(taskName, nextColor);
-            TaskPresenter newPresenter = new TaskPresenter(newTask);
-            int newTaskIndex = taskPresenterList.size();
-            taskPresenterList.add(newPresenter);
-            if (newTaskIndex == 0) {
-                // this is the very first element in the list
-                currentPresenterIndex = newTaskIndex;
-                activity.presentTask(newPresenter);
-            } else {
-                switchToTask(newTaskIndex);
+            try {
+                // save task to db
+                newTask = DataProvider.getInstance().insertTask(newTask);
+            }
+            catch (DatabaseCannotBeOpenedException e) {
+                newTask = null;
+                activity.notifyDatabaseError("Unable to save task!");
+            }
+            if (newTask != null) {
+                TaskPresenter newPresenter = new TaskPresenter(newTask);
+                int newTaskIndex = taskPresenterList.size();
+                taskPresenterList.add(newPresenter);
+                if (newTaskIndex == 0) {
+                    // this is the very first element in the list
+                    currentPresenterIndex = newTaskIndex;
+                    activity.presentTask(newPresenter);
+                } else {
+                    switchToTask(newTaskIndex);
+                }
             }
         } else {
             activity.notifyTaskQueueFull();
@@ -72,8 +111,8 @@ public class MainPresenter {
         try {
             taskList = DataProvider.getInstance().getAllTasks();
         }
-        catch (OperationApplicationException e) {
-            e.printStackTrace();
+        catch (DatabaseCannotBeOpenedException e) {
+            activity.notifyDatabaseError("Unable to load saved tasks!");
         }
         for (Task task : taskList) {
             TaskPresenter newPresenter = new TaskPresenter(task);
@@ -105,15 +144,39 @@ public class MainPresenter {
         }
     }
 
+    /**
+     * Switch from the current task to new task
+     *
+     * @param newTaskIndex index of the new task to switch to
+     */
     private void switchToTask(int newTaskIndex) {
         System.out.println(String.format("switch to new task %d from task %d", newTaskIndex, currentPresenterIndex));
         if (taskPresenterList.size() > 1) {
-            TaskPresenter currentTaskPresenter = taskPresenterList.get(currentPresenterIndex);
-            System.out.println("stop task: " + currentPresenterIndex);
-            currentTaskPresenter.stopTimeTracking();
-            TaskPresenter newTaskPresenter = taskPresenterList.get(newTaskIndex);
-            currentPresenterIndex = newTaskIndex;
-            activity.presentTask(newTaskPresenter);
+            stopTask(currentPresenterIndex);
+            startAndPresentTask(newTaskIndex);
         }
+    }
+
+    /**
+     * Start & present the task at the specific index
+     *
+     * @param taskIndex index of the task to be started
+     */
+    private void startAndPresentTask(int taskIndex) {
+        System.out.println("start task: " + currentPresenterIndex);
+        currentPresenterIndex = taskIndex;
+        TaskPresenter taskPresenter = taskPresenterList.get(taskIndex);
+        activity.presentTask(taskPresenter);
+    }
+
+    /**
+     * Stop the task at the specific index
+     *
+     * @param taskIndex index of the task to be stopped
+     */
+    private void stopTask(int taskIndex) {
+        System.out.println("stop task: " + currentPresenterIndex);
+        TaskPresenter taskPresenter = taskPresenterList.get(taskIndex);
+        taskPresenter.stopTimeTracking();
     }
 }

@@ -25,7 +25,7 @@ public class DatabaseContract {
                 + "("
                 + COLUMN_ID + " integer primary key autoincrement, "
                 + COLUMN_NAME + " text not null, "
-                + COLUMN_TIME_COUNTER + " bigint, "
+                + COLUMN_TIME_COUNTER + " integer, "
                 + COLUMN_COLOR + " integer, "
                 + COLUMN_FONT + " text null"
                 + ")";
@@ -39,6 +39,7 @@ public class DatabaseContract {
                     + oldVersion + " to " + newVersion
                     + ", which will destroy all existing data.");
             database.execSQL("drop table if exists " + TABLE_NAME);
+            createTable(database);
         }
     }
 }
