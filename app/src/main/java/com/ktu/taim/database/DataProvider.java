@@ -148,6 +148,7 @@ public class DataProvider extends SQLiteOpenHelper {
             String fontName = c.getString(c.getColumnIndex(DatabaseContract.TaskTable.COLUMN_FONT));
             task = new Task(name, color, fontName);
             task.assignId(id);
+            task.assignTimeCounterValue(timeCounter);
         }
 
         return task;
