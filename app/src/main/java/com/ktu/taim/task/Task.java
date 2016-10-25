@@ -23,6 +23,8 @@ public class Task {
         return name;
     }
 
+    public void setName(String newName) { name = newName; }
+
     public long getTimeCounter() { return timeCounter; }
 
     public int getColor() {

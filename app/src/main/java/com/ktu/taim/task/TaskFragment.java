@@ -15,6 +15,9 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.text.InputType;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 
 import com.ktu.taim.R;
 
@@ -70,6 +73,28 @@ public class TaskFragment extends Fragment {
         TextView taskTxt = (TextView) (getView().findViewById(R.id.activityNameTxt));
         taskTxt.setTypeface(Typeface.createFromAsset(getActivity().getAssets(), "fonts/Call_me_maybe.ttf"));
         taskTxt.setText(presenter.getTask().getName());
+
+        final TextView nameTxt = (TextView) (getView().findViewById(R.id.activityNameTxt));
+
+        nameTxt.setText(presenter.getTask().getName());
+        //Rename task on name text clicked
+        nameTxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                renameTask();
+            }
+        });
+
+        nameTxt.setLongClickable(true);
+        nameTxt.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                return false;
+            }
+        });
+
         // start task timer after ui is shown
         System.out.println("start task timer");
         presenter.startTimeTracking();
@@ -97,5 +122,64 @@ public class TaskFragment extends Fragment {
             // to this method after this fragment has been closed
             System.out.println(presenter.getTask().getName() + " is cancelled");
         }
+    }
+
+    //Rename the task
+    public void renameTask()
+    {
+        final TextView nameTxt = (TextView) (getView().findViewById(R.id.activityNameTxt));
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(R.string.task_name_popup);
+
+// Set up the input
+        final EditText input = new EditText(getContext());
+        input.setText(nameTxt.getText());
+// Specify the type of input expected: text
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+// Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String newName = input.getText().toString();
+                presenter.getTask().setName(newName);
+                nameTxt.setText(newName);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+    //Delete task pop up, if yes, delete
+    private void deleteTaskOnFragment(){
+        final TextView nameTxt = (TextView) (getView().findViewById(R.id.activityNameTxt));
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(R.string.delete_task_popup);
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                presenter.selfKill();
+                removeFragment();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+    private void removeFragment(){
+        //// TODO: 10/20/2016 check this: cannot apply remove(fragment) to TaskFragment
+        //getActivity().getFragmentManager().beginTransaction().remove(this);
     }
 }

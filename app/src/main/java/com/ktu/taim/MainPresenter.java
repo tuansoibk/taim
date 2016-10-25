@@ -179,4 +179,21 @@ public class MainPresenter {
         TaskPresenter taskPresenter = taskPresenterList.get(taskIndex);
         taskPresenter.stopTimeTracking();
     }
+    public void deleteTask(int taskIndex){
+        if (taskIndex<taskPresenterList.size()) {
+
+            taskPresenterList.get(taskIndex).selfKill();
+            taskPresenterList.remove(taskIndex);
+            //current task => task on the right
+            if (taskIndex<taskPresenterList.size()){
+                activity.presentTask(taskPresenterList.get(taskIndex));
+            }
+            else{
+                //delete right most task => current task=> task on the left
+                if (taskPresenterList.size()>0){
+                    activity.presentTask(taskPresenterList.get(taskPresenterList.size() - 1));
+                }
+            }
+        }
+    }
 }
