@@ -81,4 +81,16 @@ public class TaskPresenter {
             };
         };
     }
+    //// TODO: 10/20/2016 Save current time
+    public void saveTime(){
+
+    }
+
+    //// TODO: 10/20/2016 Self kill and free resource
+    public void selfKill(){
+        saveTime();
+        timerTask.cancel();
+        timer.cancel();
+        //// TODO: 10/20/2016 Kill this.task necessary????
+    }
 }
